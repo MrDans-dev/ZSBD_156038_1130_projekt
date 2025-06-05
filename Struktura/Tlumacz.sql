@@ -1,0 +1,22 @@
+USE [ZSBD_Ksiegarnia]
+GO
+
+/****** Object:  Table [dbo].[Tlumacz]    Script Date: 05.06.2025 21:05:22 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Tlumacz](
+	[tra_id] [int] IDENTITY(1,1) NOT NULL,
+	[tra_imie] [varchar](50) NULL,
+	[tra_nazwisko] [varchar](100) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[tra_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
