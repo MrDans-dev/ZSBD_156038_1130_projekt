@@ -1,11 +1,11 @@
 USE [msdb]
 GO
 
-/****** Object:  Job [ZSBD_BackupResotre_DW]    Script Date: 05.06.2025 21:21:06 ******/
+/****** Object:  Job [ZSBD_BackupResotre_DW]    Script Date: 12.06.2025 17:47:08 ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 05.06.2025 21:21:07 ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 12.06.2025 17:47:08 ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -15,7 +15,7 @@ END
 
 DECLARE @jobId BINARY(16)
 EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'ZSBD_BackupResotre_DW', 
-		@enabled=1, 
+		@enabled=0, 
 		@notify_level_eventlog=0, 
 		@notify_level_email=0, 
 		@notify_level_netsend=0, 
@@ -25,7 +25,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'ZSBD_BackupResotre_DW',
 		@category_name=N'[Uncategorized (Local)]', 
 		@owner_login_name=N'DANLAB\Daniel', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Backup]    Script Date: 05.06.2025 21:21:07 ******/
+/****** Object:  Step [Backup]    Script Date: 12.06.2025 17:47:08 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Backup', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -40,7 +40,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Backup',
 		@database_name=N'master', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Drop database]    Script Date: 05.06.2025 21:21:07 ******/
+/****** Object:  Step [Drop database]    Script Date: 12.06.2025 17:47:08 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Drop database', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 
@@ -56,7 +56,7 @@ DROP DATABASE [ZSBD_Ksiegarnia_back]',
 		@database_name=N'master', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Resotre]    Script Date: 05.06.2025 21:21:07 ******/
+/****** Object:  Step [Resotre]    Script Date: 12.06.2025 17:47:08 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Resotre', 
 		@step_id=3, 
 		@cmdexec_success_code=0, 
@@ -80,7 +80,7 @@ WITH
 		@database_name=N'master', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Delete backup]    Script Date: 05.06.2025 21:21:07 ******/
+/****** Object:  Step [Delete backup]    Script Date: 12.06.2025 17:47:08 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete backup', 
 		@step_id=4, 
 		@cmdexec_success_code=0, 
@@ -105,7 +105,7 @@ RECONFIGURE;',
 		@database_name=N'master', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [DW_Ksiazki]    Script Date: 05.06.2025 21:21:07 ******/
+/****** Object:  Step [DW_Ksiazki]    Script Date: 12.06.2025 17:47:08 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'DW_Ksiazki', 
 		@step_id=5, 
 		@cmdexec_success_code=0, 
@@ -122,7 +122,7 @@ select
 ksi_id
 ,ksi_idtyp
 ,ksi_tytul
-,case when ksi_typ_okladki = 1 then ''Miêkka'' else ''Twarda'' end
+,case when ksi_typ_okladki = 1 then ''MiÄ™kka'' else ''Twarda'' end
 ,jezyk_w.j_nazwa
 ,jezyk_o.j_nazwa
 ,ksi_rok_wydania
@@ -157,7 +157,7 @@ group by
 ksi_id
 ,ksi_idtyp
 ,ksi_tytul
-,case when ksi_typ_okladki = 1 then ''Miêkka'' else ''Twarda'' end
+,case when ksi_typ_okladki = 1 then ''MiÄ™kka'' else ''Twarda'' end
 ,jezyk_w.j_nazwa
 ,jezyk_o.j_nazwa
 ,ksi_rok_wydania
@@ -173,7 +173,7 @@ ksi_id
 		@database_name=N'ZSBD_Ksiegarnia_back', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [DW_Dokumenty]    Script Date: 05.06.2025 21:21:07 ******/
+/****** Object:  Step [DW_Dokumenty]    Script Date: 12.06.2025 17:47:08 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'DW_Dokumenty', 
 		@step_id=6, 
 		@cmdexec_success_code=0, 
@@ -208,7 +208,7 @@ where zam_idtyp = 2',
 		@database_name=N'ZSBD_Ksiegarnia_DW', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [DW_DokumentyElem]    Script Date: 05.06.2025 21:21:07 ******/
+/****** Object:  Step [DW_DokumentyElem]    Script Date: 12.06.2025 17:47:08 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'DW_DokumentyElem', 
 		@step_id=7, 
 		@cmdexec_success_code=0, 
@@ -238,7 +238,7 @@ left join [ZSBD_Ksiegarnia_back].[dbo].Magazyn on mag_id = zae_magid',
 		@database_name=N'ZSBD_Ksiegarnia_DW', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [DW_Pracownik]    Script Date: 05.06.2025 21:21:07 ******/
+/****** Object:  Step [DW_Pracownik]    Script Date: 12.06.2025 17:47:08 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'DW_Pracownik', 
 		@step_id=8, 
 		@cmdexec_success_code=0, 
@@ -270,9 +270,51 @@ left join [ZSBD_Ksiegarnia_back].dbo.Adres on adr_obid = prc_id and adr_obidtyp 
 		@database_name=N'ZSBD_Ksiegarnia_DW', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Raport_Sprzedaz_Rok_Biezacy]    Script Date: 05.06.2025 21:21:07 ******/
-EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Raport_Sprzedaz_Rok_Biezacy', 
+/****** Object:  Step [DW_Klient]    Script Date: 12.06.2025 17:47:08 ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'DW_Klient', 
 		@step_id=9, 
+		@cmdexec_success_code=0, 
+		@on_success_action=3, 
+		@on_success_step_id=0, 
+		@on_fail_action=3, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'TSQL', 
+		@command=N'truncate table [ZSBD_Ksiegarnia_DW].dw.Klient
+insert into [ZSBD_Ksiegarnia_DW].dw.Klient
+SELECT 
+kg.knt_id, 
+kg.knt_idtyp,
+kg.knt_akronim,
+kg.knt_nazwa,
+kg.knt_knpid,
+kp.knt_akronim,
+kg.knt_nip,
+ad.adr_kod_p,
+ad.adr_miasto,
+concat(ad.adr_kod_p,'' '', ad.adr_miasto,'' '', ad.adr_ulica),
+adw.adr_kod_p,
+adw.adr_miasto,
+concat(adw.adr_kod_p,'' '', adw.adr_miasto,'' '', adw.adr_ulica),
+isnull((select top 1 concat(g2.kng_nazwa,''/'',g1.kng_nazwa) from [ZSBD_Ksiegarnia_back].dbo.KlientGrupy kng
+inner join [ZSBD_Ksiegarnia_back].dbo.KlientGrupy g1 on g1.kng_id = kng.kng_groid and g1.kng_idtyp = kng.kng_groidtyp
+inner join [ZSBD_Ksiegarnia_back].dbo.KlientGrupy g2 on g2.kng_id = g1.kng_groid and g2.kng_idtyp = g1.kng_groidtyp
+where kng.kng_id = kg.knt_id and kng.kng_idtyp = 11 and kng.kng_dom = 1),''<brak>''),
+CASE 
+    WHEN kg.knt_nip IS NULL THEN ''Klient prywatny'' ELSE ''Firma''
+END
+FROM [ZSBD_Ksiegarnia_back].[dbo].[Klient] kg
+
+INNER JOIN ZSBD_Ksiegarnia_back.dbo.Klient kp ON kg.knt_knpid = kp.knt_id
+LEFT JOIN ZSBD_Ksiegarnia_back.dbo.Adres ad ON kg.knt_id = ad.adr_obid AND kg.knt_idtyp = ad.adr_obidtyp AND ad.adr_typ = 1
+LEFT JOIN ZSBD_Ksiegarnia_back.dbo.Adres adw ON kg.knt_id = adw.adr_obid AND kg.knt_idtyp = adw.adr_obidtyp AND adw.adr_typ = 2', 
+		@database_name=N'ZSBD_Ksiegarnia', 
+		@flags=0
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [Raport_Sprzedaz_Rok_Biezacy]    Script Date: 12.06.2025 17:47:08 ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Raport_Sprzedaz_Rok_Biezacy', 
+		@step_id=10, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -356,9 +398,9 @@ drop table #dane',
 		@database_name=N'master', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Raport_Wynagrodzenia]    Script Date: 05.06.2025 21:21:07 ******/
+/****** Object:  Step [Raport_Wynagrodzenia]    Script Date: 12.06.2025 17:47:08 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Raport_Wynagrodzenia', 
-		@step_id=10, 
+		@step_id=11, 
 		@cmdexec_success_code=0, 
 		@on_success_action=1, 
 		@on_success_step_id=0, 
